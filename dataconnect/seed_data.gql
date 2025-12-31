@@ -1,0 +1,58 @@
+mutation CreateDemoData @auth(level: USER) @transaction {
+  user_insertMany(
+    data: [
+      {
+        id: "550e8400-e29b-41d4-a716-446655440000"
+        createdAt: "2024-03-15T12:00:00Z"
+        displayName: "demouser1"
+        email: "demouser1@example.com"
+        studentId: "12345"
+      }
+      {
+        id: "550e8400-e29b-41d4-a716-446655440001"
+        createdAt: "2024-03-15T12:00:00Z"
+        displayName: "demouser2"
+        email: "demouser2@example.com"
+        studentId: "67890"
+      }
+    ]
+  )
+  course_insertMany(
+    data: [
+      {
+        id: "650e8400-e29b-41d4-a716-446655440000"
+        courseCode: "CS101"
+        createdAt: "2024-03-15T12:00:00Z"
+        credits: 3
+        department: "Computer Science"
+        title: "Introduction to Computer Science"
+      }
+      {
+        id: "650e8400-e29b-41d4-a716-446655440001"
+        courseCode: "ENG202"
+        createdAt: "2024-03-15T12:00:00Z"
+        credits: 4
+        department: "English"
+        title: "Advanced Composition"
+      }
+    ]
+  )
+  enrollment_insertMany(
+    data: [
+      {
+        studentId: "550e8400-e29b-41d4-a716-446655440000"
+        courseId: "650e8400-e29b-41d4-a716-446655440000"
+        academicYear: "2024-2025"
+        enrollmentDate: "2024-09-01"
+        semester: "Fall"
+      }
+      {
+        studentId: "550e8400-e29b-41d4-a716-446655440001"
+        courseId: "650e8400-e29b-41d4-a716-446655440001"
+        academicYear: "2024-2025"
+        enrollmentDate: "2024-09-01"
+        semester: "Fall"
+      }
+    ]
+  )
+}

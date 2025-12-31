@@ -9,6 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "firebase": "^12.7.0",
+    "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"
