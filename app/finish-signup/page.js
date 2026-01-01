@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 
 
-import user from "@/models/user";
-import user from "@/models/user";
+// import user from "@/models/user";
+// import user from "@/models/user";
 
 export default function FinishSignupPage() {
   const router = useRouter();
