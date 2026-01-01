@@ -1,97 +1,120 @@
-import Image from "next/image"
-import Link from "next/link"
+"use client";
 
-export default function Login() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const userCred = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const uid = userCred.user.uid;
+
+      //Check role from Firestore
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        throw new Error("User record not found");
+      }
+
+      const { role } = userSnap.data();
+
+      //Redirect based on role
+      if (role === "admin") {
+        router.push("/report/dashboard/admin");
+      } else if(role==="student"){
+        router.push("/report/dashboard/student");
+      }else{
+        router.push(`/report/dashboard/guest`)
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      let msg = "Failed to sign in";
+      if (err.code === "auth/invalid-email") msg = "Invalid email";
+      if (err.code === "auth/user-not-found") msg = "User not found";
+      if (err.code === "auth/wrong-password") msg = "Wrong password";
+      if (err.code === "auth/too-many-requests") msg = "Too many attempts";
+
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-      {/*
-        This example requires updating your template:
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form onSubmit={handleLogin} className="bg-white p-6 rounded-xl w-full max-w-md space-y-4">
+        <h1 className="text-2xl font-bold text-center">Login</h1>
 
-        ```
-        <html class="h-full bg-white dark:bg-gray-900">
-        <body class="h-full">
-        ```
-      */}
-      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-            className="mx-auto h-10 w-auto dark:hidden"
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Email"
+            className="pl-10 w-full p-3 border rounded-lg"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-          <Image src='/image.png' alt="Your Company" width={40} height={40} className="mx-auto h-10 w-auto hidden dark:block" />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
-            Sign in to your account
-          </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                  placeholder="abc@gmail.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">
-                  Password
-                </label>
-                <div className="text-sm">
-                  <Link
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  placeholder="********"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
-            Not a member?{' '}
-            <Link
-              href="/auth/signup"
-              className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-            >
-              Sign up now!!
-            </Link>
-          </p>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="pl-10 pr-10 w-full p-3 border rounded-lg"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3"
+          >
+            {showPassword ? <EyeOff /> : <Eye />}
+          </button>
         </div>
-      </div>
-    </>
-  )
+
+        <button
+          disabled={loading}
+          className="w-full bg-black text-white py-3 rounded-lg flex justify-center"
+        >
+          {loading ? <Loader2 className="animate-spin" /> : "Login"}
+        </button>
+
+        <p className="text-center text-sm">
+          No account?
+          <Link href="/auth/signup" className="ml-1 text-indigo-600">
+            Sign up
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
 }
