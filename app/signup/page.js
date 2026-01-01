@@ -39,7 +39,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/50">
         <div className="p-8 pb-0 text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Create Account</h1>
@@ -80,6 +80,9 @@ export default function SignupPage() {
           <div className="mt-8 text-center">
             <p className="text-gray-600">
               Already have an account? <Link href="/login" className="ml-2 font-semibold text-blue-600 hover:text-blue-500">Log in</Link>
+            </p>
+            <p className="text-gray-600">
+              Are you an admin? <Link href="/admin-login" className="ml-2 font-semibold text-blue-600 hover:text-blue-500">Log in as an Admin</Link>
             </p>
           </div>
         </div>
