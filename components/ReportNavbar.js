@@ -3,11 +3,20 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { useState, useEffect } from 'react';
+import Loader from './ui/Loader';
+import { auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from "firebase/firestore";
+import { Link } from 'lucide-react';
+import handleSignOut from '@/lib/handleSignOut';
+
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
   { name: 'Add Issues', href: '/actions/addissues', current: false },
-  { name: 'Settings', href: '#', current: false },
+  { name: 'Your Issues', href: '/actions/yourissues', current: false },
 ]
 
 function classNames(...classes) {
@@ -15,6 +24,30 @@ function classNames(...classes) {
 }
 
 export default function Example() {
+    const [authUser, setAuthUser] = useState(null);
+  const [dbUser, setDbUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
+      setAuthUser(currentUser);
+      const snap = await getDoc(doc(db, "users", currentUser.uid));
+      if (snap.exists()) {
+        setDbUser(snap.data());
+      }
+
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <Loader />;
   return (
     <Disclosure
       as="nav"
@@ -67,12 +100,7 @@ export default function Example() {
             <Menu as="div" className="relative ml-3">
               <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
-                <span className="sr-only">Open user menu</span>
-                <img
-                  alt=""
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  className="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
-                />
+                {dbUser ? dbUser.name : "User"}
               </MenuButton>
 
               <MenuItems
@@ -80,28 +108,18 @@ export default function Example() {
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 outline -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
               >
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-                  >
-                    Your profile
-                  </a>
+                  <p className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden">Roll: {dbUser.rollNumber}</p>
                 </MenuItem>
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-                  >
-                    Settings
-                  </a>
+                  <p className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden">Email: {dbUser.email}</p>
                 </MenuItem>
                 <MenuItem>
-                  <a
-                    href="#"
+                  <button
+                    onClick={handleSignOut}
                     className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                   >
                     Sign out
-                  </a>
+                  </button>
                 </MenuItem>
               </MenuItems>
             </Menu>
