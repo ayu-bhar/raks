@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, sendEmailVerification, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth, db } from "../../lib/firebase";
 import { Loader2, User, Phone, Hash, ArrowRight, MailCheck } from "lucide-react";
 
 export default function FinishSignupPage() {
