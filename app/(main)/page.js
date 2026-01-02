@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react"; // 1. Import Hooks
 import Link from "next/link";
 import { 
   Ticket, 
@@ -8,14 +11,27 @@ import {
   GraduationCap,
   Store,
   Building,
-  ChevronDown // Added for the dropdown indicator
+  ChevronDown 
 } from "lucide-react";
 
+// 2. Import Firebase Auth
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+
 export default function Home() {
+  const [user, setUser] = useState(null); // 3. State to track user
+
+  // 4. Check Auth Status on Mount
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       
-
       {/* --- BODY CONTENT --- */}
       <main className="grow">
         
@@ -29,9 +45,14 @@ export default function Home() {
               Streamline your student life. Generate gate passes, check events, and report issues instantly.
             </p>
             <div className="flex justify-center gap-4">
-              <Link href="/auth/signup" className="px-8 py-3 rounded-full bg-gray-900 text-white font-medium hover:bg-gray-800 transition-all">
-                Get Started
-              </Link>
+              
+              {/* 5. Conditionally Render 'Get Started' */}
+              {!user && (
+                <Link href="/auth/signup" className="px-8 py-3 rounded-full bg-gray-900 text-white font-medium hover:bg-gray-800 transition-all">
+                  Get Started
+                </Link>
+              )}
+
               <Link href="/club_events" className="px-8 py-3 rounded-full bg-white border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all">
                 Browse Events
               </Link>
@@ -138,7 +159,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
                 <li><Link href="/club_events" className="hover:text-blue-400 transition-colors">Events</Link></li>
-                <li><Link href="/gate-pass" className="hover:text-blue-400 transition-colors">Gate Pass</Link></li>
+                <li><Link href="/gate-pass/market" className="hover:text-blue-400 transition-colors">Gate Pass</Link></li>
               </ul>
             </div>
             <div>
