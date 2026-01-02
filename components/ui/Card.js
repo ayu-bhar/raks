@@ -1,70 +1,55 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getUser } from "@/utils/getUser";
+import { auth } from "@/lib/firebase";
+import { voteOnPost } from "@/utils/voteOnPost";
 
-const Card = ({ postid, userid, imgUrl, title, description, upvotes, downVotes }) => {
-  const [author, setAuthor] = useState(null);
+const Card = ({ postId, imgUrl, title, description, upvotes, downvotes }) => {
+  const handleVote = async (type) => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Login required");
+      return;
+    }
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchUser = async () => {
-      const data = await getUser(userid);
-      if (mounted) setAuthor(data);
-    };
-
-    fetchUser();
-
-    return () => {
-      mounted = false;
-    };
-  }, [userid]);
+    try {
+      await voteOnPost(postId, user.uid, type);
+    } catch (err) {
+      console.error(err);
+      alert("Voting failed");
+    }
+  };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="max-w-sm rounded-lg shadow bg-white">
+      <img
+        src={imgUrl}
+        alt={title}
+        className="w-full h-48 object-cover rounded-t-lg"
+      />
 
-      {/* Image */}
-      {imgUrl ? (
-        <img
-          src={imgUrl}
-          alt={title}
-          className="w-full h-48 object-cover bg-gray-100"
-        />
-      ) : (
-        <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
-          No image
+      <div className="p-4">
+        <h3 className="font-bold text-lg">{title}</h3>
+        <p className="text-gray-600 text-sm mt-1">{description}</p>
+
+        <div className="flex gap-3 mt-4">
+          <button
+            onClick={() => handleVote("up")}
+            className="flex items-center gap-1 bg-green-100 px-3 py-1 rounded hover:bg-green-200 text-green-800 font-semibold"
+          >
+            👍 <span>{upvotes}</span>
+          </button>
+
+          <button
+            onClick={() => handleVote("down")}
+            className="flex items-center gap-1 bg-red-100 px-3 py-1 rounded hover:bg-red-200 text-red-800 font-semibold"
+          >
+            👎 <span>{downvotes}</span>
+          </button>
+
         </div>
-      )}
-
-      {/* Content */}
-      <div className="p-5 space-y-2">
-        <p className="text-xs text-gray-500">
-          Published by <span className="font-medium">{author?.name ?? "Anonymous"}</span>
-        </p>
-
-        <h2 className="text-lg font-semibold text-gray-900">
-          {title}
-        </h2>
-
-        <p className="text-sm text-gray-700 line-clamp-3">
-          {description}
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div className="px-5 pb-5 flex gap-3">
-        <button className="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium hover:cursor-pointer">
-          👍 {upvotes}
-        </button>
-
-        <button className="flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium hover:cursor-pointer">
-          👎 {downVotes}
-        </button>
       </div>
     </div>
   );
 };
 
 export default Card;
-

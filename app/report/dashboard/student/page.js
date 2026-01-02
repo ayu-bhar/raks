@@ -41,15 +41,14 @@ export default function StudentDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
             <Card
-              key={post.id}
-              postid={post.id}
-              userid={post.createdBy}
-              imgUrl={post.imageUrl}
-              title={post.title}
-              description={post.description}
-              upvotes={post.upvotes}
-              downVotes={post.downvotes}
-            />
+            postId={post.id}
+            title={post.title}
+            description={post.description}
+            imgUrl={post.imageUrl}
+            upvotes={post.upvotes}
+            downvotes={post.downvotes}
+          />
+
           ))}
         </div>
       )}
