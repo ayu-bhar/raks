@@ -11,16 +11,21 @@ export default function StudentDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Query: Fetch all posts sorted by newest first
     const q = query(
       collection(db, "posts"),
       orderBy("createdAt", "desc")
     );
 
+    // 2. Real-time Listener
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const data = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        // 3. Filter: Exclude any post where status is "resolved"
+        .filter((post) => post.status !== "resolved");
 
       setPosts(data);
       setLoading(false);
@@ -36,23 +41,25 @@ export default function StudentDashboardPage() {
       <h1 className="text-2xl font-bold mb-6">Reported Issues</h1>
 
       {posts.length === 0 ? (
-        <p className="text-gray-500">No issues reported yet.</p>
+        <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+          <p className="text-lg">No active issues.</p>
+          <p className="text-sm">Great! Everything seems to be working.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
             <Card
-            postId={post.id}
-            title={post.title}
-            description={post.description}
-            imgUrl={post.imageUrl}
-            upvotes={post.upvotes}
-            downvotes={post.downvotes}
-          />
-
+              key={post.id} 
+              postId={post.id}
+              title={post.title}
+              description={post.description}
+              imgUrl={post.imageUrl}
+              upvotes={post.upvotes}
+              downvotes={post.downvotes}
+            />
           ))}
         </div>
       )}
     </div>
   );
 }
-

@@ -1,67 +1,92 @@
 "use client";
 import React from "react";
+import { ThumbsUp, ThumbsDown, Edit2, Trash2, CheckCircle, Clock } from "lucide-react";
 
-export default function MyIssueCard({
-  post,
-  onEdit,
-  onDelete,
-}) {
+export default function MyIssueCard({ post, onEdit, onDelete }) {
   const { imageUrl, title, description, upvotes, downvotes, status } = post;
 
+  const isResolved = status === "resolved";
+
   return (
-    <div className="max-w-sm rounded-lg overflow-hidden shadow-md bg-white">
-      <img
-        src={imageUrl}
-        alt={title}
-        className="w-full h-48 object-cover"
-      />
-
-      <div className="p-4">
-        {/* Title + Status */}
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold text-lg">{title}</h3>
-
+    <div className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+      
+      {/* Image Container with Overlay */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={imageUrl}
+          alt={title}
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Status Badge (Floating) */}
+        <div className="absolute top-3 right-3">
           <span
-            className={`text-xs px-2 py-1 rounded-full font-semibold ${
-              status === "resolved"
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md ${
+              isResolved
+                ? "bg-green-500/90 text-white"
+                : "bg-amber-400/90 text-white"
             }`}
           >
-            {status.toUpperCase()}
+            {isResolved ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+            {status}
           </span>
         </div>
+      </div>
 
-        <p className="text-sm text-gray-600 mb-3">{description}</p>
+      <div className="p-5 flex flex-col flex-grow">
+        {/* Title */}
+        <h3 className="font-bold text-lg text-gray-900 leading-tight mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
+          {title}
+        </h3>
 
-        {/* Votes */}
-        <div className="flex gap-3 mb-3">
-          <span className="bg-green-200 text-green-900 px-3 py-1 rounded text-sm font-semibold">
-            👍 {upvotes}
-          </span>
-          <span className="bg-red-200 text-red-900 px-3 py-1 rounded text-sm font-semibold">
-            👎 {downvotes}
-          </span>
-        </div>
+        {/* Description */}
+        <p className="text-sm text-gray-500 mb-6 line-clamp-2 leading-relaxed flex-grow">
+          {description}
+        </p>
 
-        {/* Actions */}
-        {status !== "resolved" && (
-          <div className="flex gap-2">
-            <button
-              onClick={onEdit}
-              className="flex-1 bg-blue-100 text-blue-800 py-1 rounded hover:bg-blue-200 text-sm"
-            >
-              ✏️ Edit
-            </button>
-
-            <button
-              onClick={onDelete}
-              className="flex-1 bg-red-100 text-red-800 py-1 rounded hover:bg-red-200 text-sm"
-            >
-              🗑 Delete
-            </button>
+        {/* Footer: Votes & Actions */}
+        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
+          
+          {/* Vote Counts */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+              <ThumbsUp className="w-4 h-4 text-green-500" />
+              <span>{upvotes}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+              <ThumbsDown className="w-4 h-4 text-red-400" />
+              <span>{downvotes}</span>
+            </div>
           </div>
-        )}
+
+          {/* Action Buttons */}
+          {!isResolved && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                title="Edit Issue"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                title="Delete Issue"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
