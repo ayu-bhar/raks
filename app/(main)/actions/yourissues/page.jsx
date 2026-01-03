@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   collection,
   query,
@@ -14,6 +15,7 @@ import { auth, db } from "@/lib/firebase";
 import Image from "next/image";
 
 export default function YourIssuesPage() {
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -113,7 +115,7 @@ export default function YourIssuesPage() {
                 <div className="flex gap-2">
                   <button
                     className="text-blue-600 text-sm hover:underline"
-                    onClick={() => alert("Edit coming soon")}
+                    onClick={() => router.push(`/report/edit/${post.id}`)}
                   >
                     Edit
                   </button>

@@ -26,7 +26,9 @@ const Card = ({ postId, imgUrl, title, description, upvotes, downvotes }) => {
         alt={title}
         className="w-full h-48 object-cover rounded-t-lg"
       />
-
+      <div className="px-4 pt-4 flex gap-2">
+        <span className="text-green-600 text-sm font-medium">Hostel Issue</span>
+      </div>
       <div className="p-4">
         <h3 className="font-bold text-lg">{title}</h3>
         <p className="text-gray-600 text-sm mt-1">{description}</p>

@@ -38,7 +38,7 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-2xl font-bold mb-6">Reported Issues</h1>
+      <h1 className="text-2xl font-bold mb-6 text-blue-500">Reported Issues</h1>
 
       {posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-gray-400">
