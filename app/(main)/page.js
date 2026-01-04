@@ -103,7 +103,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-600 transition-colors">
                   <CalendarDays className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Club</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Club Events</h3>
                 <p className="text-gray-500 text-sm">See what's happening on campus this week.</p>
                 <div className="mt-4 flex items-center text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   View Schedule <ArrowRight className="w-4 h-4 ml-1" />
