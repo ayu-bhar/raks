@@ -8,7 +8,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import {
   Loader2,
   User,
