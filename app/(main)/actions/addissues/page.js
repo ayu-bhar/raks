@@ -1,9 +1,10 @@
 "use client";
-
+import StudentGuard from "@/components/auth/StudentGuard";
 import AddIssueForm from "@/components/AddIssueForm";
 
 export default function AddIssuesPage() {
   return (
+    <StudentGuard>
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
@@ -15,5 +16,6 @@ export default function AddIssuesPage() {
         
       </div>
     </div>
+    </StudentGuard>
   );
 }

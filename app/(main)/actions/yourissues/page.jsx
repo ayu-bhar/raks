@@ -13,6 +13,7 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import Image from "next/image";
+import StudentGuard from "@/components/auth/StudentGuard";
 
 export default function YourIssuesPage() {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function YourIssuesPage() {
   }
 
   return (
+    <StudentGuard>
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-2xl font-bold mb-6">My Issues</h1>
 
@@ -133,5 +135,6 @@ export default function YourIssuesPage() {
         ))}
       </div>
     </div>
+    </StudentGuard>
   );
 }

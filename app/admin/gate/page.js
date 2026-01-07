@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+import AdminGuard from "@/components/auth/AdminGuard";
 
 export default function AdminGatePage() {
   // --- STATE MANAGEMENT ---
@@ -68,6 +69,7 @@ export default function AdminGatePage() {
   });
 
   return (
+    <AdminGuard>
     <div className="space-y-6">
       
       {/* --- PAGE HEADER & STATS --- */}
@@ -268,5 +270,6 @@ export default function AdminGatePage() {
 
       </div>
     </div>
+    </AdminGuard>
   );
 }

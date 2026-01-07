@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, Suspense } from "react"; // 1. Import Suspense
+import { useState, Suspense, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation"; // 2. Import useSearchParams
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { 
   LayoutDashboard, 
   DoorOpen, 
@@ -12,28 +12,33 @@ import {
   X, 
   LogOut, 
   ShieldCheck,
-  Loader2, 
-  Building2Icon,
-  FileTextIcon
+  Loader2,
+  FileTextIcon,
+  CalendarPlus, // <--- 1. FIXED: Imported CalendarPlus
+  Lock
 } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "@/lib/firebase"; 
+import { doc, getDoc } from "firebase/firestore"; 
 
-// --- 3. Separate Sidebar Component ---
-// We move the sidebar logic here so we can wrap it in Suspense
-function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
+// --- 1. Sidebar Component ---
+function AdminSidebar({ isSidebarOpen, setIsSidebarOpen, role }) { // <--- 2. FIXED: Added 'role' prop
   const pathname = usePathname();
-  const searchParams = useSearchParams(); // Now safe to use
+  const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab");
   const router = useRouter();
 
-  const navItems = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Gate Management", href: "/admin/gate", icon: DoorOpen },
-    { name: "Hostel Reports", href: "/admin/reports?tab=hostel", icon: Building2 },
-    { name: "Campus Reports", href: "/admin/reports?tab=campus", icon: Map },
-    { name: "Hostel Approvels", href: "/admin/hostel-pass",icon : FileTextIcon}
+  const allNavItems = [
+    { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["admin"] }, // Added club-admin access to dashboard if needed
+    { name: "Gate Management", href: "/admin/gate", icon: DoorOpen, roles: ["admin"] },
+    { name: "Hostel Reports", href: "/admin/reports?tab=hostel", icon: Building2, roles: ["admin"] },
+    { name: "Campus Reports", href: "/admin/reports?tab=campus", icon: Map, roles: ["admin"] },
+    { name: "Hostel Approvals", href: "/admin/hostel-pass", icon: FileTextIcon, roles: ["admin"] },
+    { name: "Add Event", href: "/admin/club-events/add", icon: CalendarPlus, roles: ["admin", "club-admin"] }
   ];
+
+  // Filter items based on the user's role
+  const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   const handleLogout = async () => {
     if (!confirm("Are you sure you want to sign out?")) return;
@@ -54,7 +59,6 @@ function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}
     >
-      {/* Sidebar Header */}
       <div className="h-16 flex items-center px-6 border-b border-slate-800 justify-between">
         <div className="flex items-center">
           <ShieldCheck className="w-8 h-8 text-blue-500 mr-2" />
@@ -68,23 +72,16 @@ function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
         </button>
       </div>
 
-      {/* Navigation Links */}
       <nav className="p-4 space-y-2">
         {navItems.map((item) => {
-          // --- HIGHLIGHT LOGIC ---
           let isActive = false;
-
           if (item.href === "/admin") {
-            // Exact match for Dashboard
             isActive = pathname === "/admin";
           } else if (item.href.includes("?tab=")) {
-            // Logic for Report Tabs
             const [path, query] = item.href.split("?");
             const targetTab = new URLSearchParams(query).get("tab");
-            // Active if path matches AND tab matches
             isActive = pathname === path && currentTab === targetTab;
           } else {
-            // General match for other pages (e.g. Gate)
             isActive = pathname.startsWith(item.href);
           }
 
@@ -92,7 +89,7 @@ function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
 
           return (
             <Link
-              key={item.name} // Use name as key since hrefs might duplicate base path
+              key={item.name}
               href={item.href}
               onClick={() => setIsSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
@@ -108,7 +105,6 @@ function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
         })}
       </nav>
 
-      {/* Logout Section */}
       <div className="absolute bottom-0 w-full p-4 border-t border-slate-800">
         <button 
           onClick={handleLogout}
@@ -122,23 +118,94 @@ function AdminSidebar({ isSidebarOpen, setIsSidebarOpen }) {
   );
 }
 
-// --- 4. Main AdminLayout ---
+// --- 2. Main AdminLayout ---
 export default function AdminLayout({ children }) {
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userRole , setUserRole] = useState("");
+  
+  // State for logic
+  const [loading, setLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [adminName, setAdminName] = useState("");
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        // Not logged in -> Redirect
+        router.push("/auth/login");
+        return;
+      }
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // --- SECURITY CHECK ---
+          if (userData.role === "admin" || userData.role === "club-admin") {
+            setAdminName(userData.name || "Admin");
+            setIsAuthorized(true);
+            
+            // Set role state correctly
+            if(userData.role === "admin"){
+              setUserRole("admin");
+            } else {
+              setUserRole("club-admin");
+            }
+          } else {
+            // Logged in but NOT an admin
+            alert("Access Denied: You do not have admin privileges.");
+            router.push("/"); // Send to student home
+          }
+        } else {
+          // No user data found
+          router.push("/");
+        }
+      } catch (error) {
+        console.error("Authorization Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  // 1. Show Loader while checking permissions
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 font-medium">Verifying Admin Access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. If not authorized, return null
+  if (!isAuthorized) {
+    return null; 
+  }
+
+  // 3. Render Admin Layout
   return (
     <div className="min-h-screen bg-gray-50 flex">
       
-      {/* Wrapped in Suspense to handle useSearchParams safely */}
       <Suspense fallback={
         <div className="w-64 bg-slate-900 hidden md:flex items-center justify-center">
           <Loader2 className="animate-spin text-white" />
         </div>
       }>
-        <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+        <AdminSidebar 
+          isSidebarOpen={isSidebarOpen} 
+          setIsSidebarOpen={setIsSidebarOpen} 
+          role={userRole} // Passing role to sidebar
+        />
       </Suspense>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Header */}
@@ -157,22 +224,21 @@ export default function AdminLayout({ children }) {
           
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-gray-900">Admin User</p>
-              <p className="text-xs text-gray-500">Chief Warden</p>
+              <p className="text-sm font-bold text-gray-900">{adminName}</p>
+              <p className="text-xs text-gray-500">{userRole === 'admin' ? "Chief Warden" : "Club Admin"}</p>
             </div>
             <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold border border-blue-200">
-              AD
+              {adminName.charAt(0).toUpperCase()}
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* Render Children */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {children}
         </main>
       </div>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
           onClick={() => setIsSidebarOpen(false)}

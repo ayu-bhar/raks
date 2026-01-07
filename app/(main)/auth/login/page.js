@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -23,6 +23,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // 1. Authenticate with Firebase Auth
       const userCred = await signInWithEmailAndPassword(
         auth,
         email,
@@ -31,7 +32,7 @@ export default function LoginPage() {
 
       const uid = userCred.user.uid;
 
-      //Check role from Firestore
+      // 2. Check role from Firestore 'users' collection
       const userRef = doc(db, "users", uid);
       const userSnap = await getDoc(userRef);
 
@@ -39,25 +40,29 @@ export default function LoginPage() {
         throw new Error("User record not found");
       }
 
-      const { role } = userSnap.data();
+      const userData = userSnap.data();
+      const role = userData.role || "public"; // Default to public if role is missing
 
-      //Redirect based on role
+      // 3. Redirect based on Role
       if (role === "admin") {
-        router.push("/report/dashboard/admin");
-      } else if(role==="student"){
-        router.push("/report/dashboard/student");
-      }else{
-        router.push(`/report/dashboard/guest`)
+        router.push("/admin"); // Redirect to Admin Portal
+      } else if (role === "student") {
+        router.push("/report/dashboard/student"); // Redirect to Student Dashboard
+      } else {
+        router.push("/"); // Public/Guest -> Home Page
       }
 
     } catch (err) {
       console.error(err);
 
       let msg = "Failed to sign in";
-      if (err.code === "auth/invalid-email") msg = "Invalid email";
-      if (err.code === "auth/user-not-found") msg = "User not found";
-      if (err.code === "auth/wrong-password") msg = "Wrong password";
-      if (err.code === "auth/too-many-requests") msg = "Too many attempts";
+      // Handle Firebase specific error codes
+      if (err.code === "auth/invalid-email") msg = "Invalid email address.";
+      if (err.code === "auth/user-not-found") msg = "No account found with this email.";
+      if (err.code === "auth/wrong-password") msg = "Incorrect password.";
+      if (err.code === "auth/invalid-credential") msg = "Invalid email or password."; // New standard error
+      if (err.code === "auth/too-many-requests") msg = "Too many attempts. Try again later.";
+      if (err.message === "User record not found") msg = "Account exists but has no profile data.";
 
       setError(msg);
     } finally {
@@ -66,55 +71,89 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleLogin} className="bg-white p-6 rounded-xl w-full max-w-md space-y-4">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
-
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <div className="relative">
-          <Mail className="absolute left-3 top-3 text-gray-400" />
-          <input
-            type="email"
-            placeholder="Email"
-            className="pl-10 w-full p-3 border rounded-lg"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6 border border-gray-100">
+        
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="bg-blue-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 text-white">
+            <GraduationCap size={28} />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="text-gray-500 text-sm">Sign in to access your campus account</p>
         </div>
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-3 text-gray-400" />
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            className="pl-10 pr-10 w-full p-3 border rounded-lg"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          
+          {/* Email Input */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 ml-1">Email</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+              <input
+                type="email"
+                required
+                placeholder="student@example.com"
+                className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Password Input */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 ml-1">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                className="pl-10 pr-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+             <Link href="#" className="text-xs font-medium text-blue-600 hover:text-blue-700">
+               Forgot password?
+             </Link>
+          </div>
+
+          {/* Submit Button */}
           <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gray-900 hover:bg-black text-white py-3.5 rounded-xl font-semibold flex justify-center items-center transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {showPassword ? <EyeOff /> : <Eye />}
+            {loading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>
-        </div>
+        </form>
 
-        <button
-          disabled={loading}
-          className="w-full bg-black text-white py-3 rounded-lg flex justify-center"
-        >
-          {loading ? <Loader2 className="animate-spin" /> : "Login"}
-        </button>
-
-        <p className="text-center text-sm">
-          No account?
-          <Link href="/auth/signup" className="ml-1 text-indigo-600">
+        <p className="text-center text-sm text-gray-500">
+          Don't have an account?
+          <Link href="/auth/signup" className="ml-1 text-blue-600 font-semibold hover:underline">
             Sign up
           </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }

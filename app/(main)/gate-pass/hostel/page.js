@@ -17,6 +17,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 // If you don't have this component, remove the <CampusGuard> wrapper in the return statement
 import CampusGuard from "@/components/auth/CampusGuard"; 
+import StudentGuard from "@/components/auth/StudentGuard";
 
 export default function HostelDashboard() {
   const router = useRouter();
@@ -121,7 +122,7 @@ export default function HostelDashboard() {
   }
 
   return (
-    // Remove CampusGuard if you don't have that component created
+    <StudentGuard>
     <CampusGuard> 
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-lg">
@@ -230,5 +231,6 @@ export default function HostelDashboard() {
         </div>
       </div>
     </CampusGuard>
+    </StudentGuard>
   );
 }

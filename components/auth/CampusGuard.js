@@ -35,7 +35,7 @@ export default function CampusGuard({ children }) {
           
           // Check Role in Firestore
           const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (!userDoc.exists() || userDoc.data().role !== "student") {
+          if (!userDoc.exists() || !(userDoc.data().role === "student"||userDoc.data().role ==="club-admin")) {
             setDenialReason("Access Restricted: Students Only.");
             setIcon(<ShieldAlert className="w-12 h-12 text-red-500" />);
             setStatus("denied");

@@ -10,7 +10,7 @@ import {
   Type, AlignLeft, Calendar, ExternalLink, X 
 } from "lucide-react";
 import Image from "next/image";
-
+import AdminGuard from "@/components/auth/AdminGuard";
 export default function AddEventPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -72,6 +72,7 @@ const handleSubmit = async (e) => {
   };
 
   return (
+    <AdminGuard>
     <div className="min-h-screen bg-gray-50 p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
         
@@ -268,5 +269,6 @@ const handleSubmit = async (e) => {
         </div>
       </div>
     </div>
+    </AdminGuard>
   );
 }

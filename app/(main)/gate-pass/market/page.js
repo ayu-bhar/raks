@@ -11,6 +11,7 @@ import {
   collection, addDoc, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc 
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import StudentGuard from "@/components/auth/StudentGuard";
 
 export default function MarketLeavePage() {
   const [loading, setLoading] = useState(true);
@@ -161,6 +162,7 @@ export default function MarketLeavePage() {
 
   // --- RENDER ---
   return (
+    <StudentGuard>
     <CampusGuard>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 flex flex-col items-center justify-center p-4 md:p-8">
         
@@ -246,5 +248,6 @@ export default function MarketLeavePage() {
         </div>
       </div>
     </CampusGuard>
+    </StudentGuard>
   );
 }

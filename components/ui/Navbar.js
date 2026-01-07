@@ -26,6 +26,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dbName, setDbName] = useState("");
+  const [role , setRole] = useState("");
   const router = useRouter();
 
   // --- 1. TRACK AUTH & FETCH DB PROFILE ---
@@ -41,6 +42,7 @@ export default function Navbar() {
           if (userSnap.exists()) {
             const userData = userSnap.data();
             setDbName(userData.name || "");
+            setRole(userData.role)
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
@@ -55,7 +57,7 @@ export default function Navbar() {
   // --- 2. GET DISPLAY NAME HELPER ---
   const getUserName = () => {
     if (dbName) return dbName;
-    if (user?.displayName) return user.displayName;
+    if (user?.name) return user.name;
     if (user?.email) return user.email.split("@")[0];
     return "Student";
   };
@@ -156,7 +158,7 @@ export default function Navbar() {
                     {getUserName()}
                   </p>
                   <p className="text-[10px] text-gray-400 font-medium mt-1 uppercase tracking-wide">
-                    Student
+                    {role}
                   </p>
                 </div>
 

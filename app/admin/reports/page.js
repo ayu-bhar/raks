@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react"; // 1. Add Suspense
 import { useSearchParams } from "next/navigation";     // 2. Add useSearchParams
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import AdminGuard from "@/components/auth/AdminGuard";
 import { db } from "@/lib/firebase";
 import { 
   Building2, 
@@ -59,6 +60,7 @@ function ReportsContent() {
   }
 
   return (
+    <AdminGuard>
     <div className="space-y-8">
       
       {/* Page Header */}
@@ -116,12 +118,14 @@ function ReportsContent() {
       </div>
 
     </div>
+    </AdminGuard>
   );
 }
 
 // --- 5. Main Export wrapped in Suspense ---
 export default function AdminReportsPage() {
   return (
+    <AdminGuard>
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
@@ -129,5 +133,6 @@ export default function AdminReportsPage() {
     }>
       <ReportsContent />
     </Suspense>
+    </AdminGuard>
   );
 }

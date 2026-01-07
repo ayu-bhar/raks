@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/firebase"; 
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+import AdminGuard from "@/components/auth/AdminGuard";
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -117,6 +118,7 @@ export default function AdminDashboard() {
   }
 
   return (
+    <AdminGuard>
     <div className="space-y-8">
       
       {/* Welcome Section */}
@@ -251,5 +253,6 @@ export default function AdminDashboard() {
 
       </div>
     </div>
+    </AdminGuard>
   );
 }

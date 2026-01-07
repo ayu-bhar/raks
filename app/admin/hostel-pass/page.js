@@ -5,11 +5,12 @@ import { Clock, Users, History, Building2 } from "lucide-react";
 import PendingApps from "./_components/PendingApps";
 import ActiveLeaves from "./_components/ActiveLeaves";
 import HistoryLogs from "./_components/HistoryLogs";
-
+import AdminGuard from "@/components/auth/AdminGuard";
 export default function HostelReportPage() {
   const [activeTab, setActiveTab] = useState("pending");
 
   return (
+    <AdminGuard>
     <div className="min-h-screen bg-gray-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-6">
         
@@ -62,5 +63,6 @@ export default function HostelReportPage() {
 
       </div>
     </div>
+    </AdminGuard>
   );
 }

@@ -5,6 +5,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Card from "@/components/ui/Card";
 import Loader from "@/components/ui/Loader";
+import StudentGuard from "@/components/auth/StudentGuard";
 
 export default function StudentDashboardPage() {
   const [posts, setPosts] = useState([]);
@@ -37,6 +38,7 @@ export default function StudentDashboardPage() {
   if (loading) return <Loader />;
 
   return (
+    <StudentGuard>
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-2xl font-bold mb-6 text-blue-500">Reported Issues</h1>
 
@@ -61,5 +63,6 @@ export default function StudentDashboardPage() {
         </div>
       )}
     </div>
+    </StudentGuard>
   );
 }

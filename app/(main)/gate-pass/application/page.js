@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { db, auth } from "@/lib/firebase"; 
 import { collection, addDoc, query, where, getDocs, serverTimestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import StudentGuard from "@/components/auth/StudentGuard";
 
 export default function GatePassApplication() {
   const router = useRouter();
@@ -108,6 +109,7 @@ export default function GatePassApplication() {
   }
 
   return (
+    <StudentGuard>
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex justify-center items-start pt-10">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         
@@ -232,5 +234,6 @@ export default function GatePassApplication() {
         </form>
       </div>
     </div>
+    </StudentGuard>
   );
 }
