@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"; // 1. Import Hooks
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Ticket, 
@@ -11,17 +11,16 @@ import {
   GraduationCap,
   Store,
   Building,
+  Users, // <--- Added for Clubs icon
   ChevronDown 
 } from "lucide-react";
 
-// 2. Import Firebase Auth
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default function Home() {
-  const [user, setUser] = useState(null); // 3. State to track user
+  const [user, setUser] = useState(null);
 
-  // 4. Check Auth Status on Mount
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -46,7 +45,6 @@ export default function Home() {
             </p>
             <div className="flex justify-center gap-4">
               
-              {/* 5. Conditionally Render 'Get Started' */}
               {!user && (
                 <Link href="/auth/signup" className="px-8 py-3 rounded-full bg-gray-900 text-white font-medium hover:bg-gray-800 transition-all">
                   Get Started
@@ -67,7 +65,7 @@ export default function Home() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
-              {/* --- CARD 1: GATE PASS (Quick Select) --- */}
+              {/* --- CARD 1: GATE PASS (Split Options) --- */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -78,7 +76,6 @@ export default function Home() {
                 <p className="text-gray-500 text-sm mb-6">Where are you heading today?</p>
                 
                 <div className="mt-auto grid grid-cols-2 gap-3">
-                  {/* Option 1: Hostel */}
                   <Link 
                     href="/gate-pass/hostel" 
                     className="flex flex-col items-center justify-center p-3 rounded-xl bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-200 transition-all group"
@@ -87,7 +84,6 @@ export default function Home() {
                     <span className="text-xs font-semibold text-gray-600 group-hover:text-green-700">Hostel</span>
                   </Link>
 
-                  {/* Option 2: Market */}
                   <Link 
                     href="/gate-pass/market" 
                     className="flex flex-col items-center justify-center p-3 rounded-xl bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-200 transition-all group"
@@ -98,17 +94,36 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Card 2: Club Events */}
-              <Link href="/club_events" className="group block p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-purple-100">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-600 transition-colors">
-                  <CalendarDays className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" />
+              {/* --- CARD 2: ACTIVITIES (Updated Split Options) --- */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <CalendarDays className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">Activities</h3>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Club Events</h3>
-                <p className="text-gray-500 text-sm">See what's happening on campus this week.</p>
-                <div className="mt-4 flex items-center text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  View Schedule <ArrowRight className="w-4 h-4 ml-1" />
+                <p className="text-gray-500 text-sm mb-6">Join clubs or check upcoming events.</p>
+                
+                <div className="mt-auto grid grid-cols-2 gap-3">
+                  {/* Option 1: Clubs */}
+                  <Link 
+                    href="/club" 
+                    className="flex flex-col items-center justify-center p-3 rounded-xl bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-200 transition-all group"
+                  >
+                    <Users className="w-5 h-5 text-gray-400 group-hover:text-purple-600 mb-1" />
+                    <span className="text-xs font-semibold text-gray-600 group-hover:text-purple-700">Clubs</span>
+                  </Link>
+
+                  {/* Option 2: Events */}
+                  <Link 
+                    href="/club_events" 
+                    className="flex flex-col items-center justify-center p-3 rounded-xl bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-200 transition-all group"
+                  >
+                    <CalendarDays className="w-5 h-5 text-gray-400 group-hover:text-purple-600 mb-1" />
+                    <span className="text-xs font-semibold text-gray-600 group-hover:text-purple-700">Events</span>
+                  </Link>
                 </div>
-              </Link>
+              </div>
 
               {/* Card 3: Report Issues */}
               <Link href="/actions/addissues" className="group block p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-red-100">

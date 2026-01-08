@@ -79,10 +79,7 @@ export default function SignupPage() {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Already have an account? <Link href="/login" className="ml-2 font-semibold text-blue-600 hover:text-blue-500">Log in</Link>
-            </p>
-            <p className="text-gray-600">
-              Are you an admin? <Link href="/admin-login" className="ml-2 font-semibold text-blue-600 hover:text-blue-500">Log in as an Admin</Link>
+              Already have an account? <Link href="/auth/login" className="ml-2 font-semibold text-blue-600 hover:text-blue-500">Log in</Link>
             </p>
           </div>
         </div>

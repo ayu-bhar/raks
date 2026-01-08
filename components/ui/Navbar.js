@@ -64,9 +64,8 @@ export default function Navbar() {
 
   // --- 3. HANDLE LOGOUT WITH CONFIRMATION ---
   const handleLogout = async () => {
-    // Show confirmation dialog
     if (!confirm("Are you sure you want to log out?")) {
-      return; // Stop here if user clicks "Cancel"
+      return; 
     }
 
     try {
@@ -100,12 +99,10 @@ export default function Navbar() {
               Home
             </Link>
 
-            {/* <Link href="/club" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">
-              Club
-            </Link> */}
+            {/* Club Dropdown */}
             <div className="relative group h-16 flex items-center">
               <button className="flex items-center gap-1 text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors focus:outline-none">
-                Club activities
+                Club and Events
                 <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:rotate-180" />
               </button>
 
@@ -200,7 +197,7 @@ export default function Navbar() {
 
       {/* --- MOBILE MENU --- */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-xl">
+        <div className="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-xl h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="px-4 pt-2 pb-6 space-y-1">
 
             {/* Mobile User Profile Header */}
@@ -224,6 +221,25 @@ export default function Navbar() {
               <Home className="w-5 h-5" /> Home
             </Link>
 
+            {/* --- NEW CLUB ACTIVITIES SECTION --- */}
+            <div className="py-2">
+              <div className="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Club Activities</div>
+              <Link
+                href="/club"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors ml-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Users className="w-5 h-5" /> Clubs
+              </Link>
+              <Link
+                href="/club_events"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors ml-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <CalendarDays className="w-5 h-5" /> Club Events
+              </Link>
+            </div>
+
             {/* Gate Pass Section */}
             <div className="py-2">
               <div className="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Gate Pass System</div>
@@ -232,14 +248,14 @@ export default function Navbar() {
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors ml-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div> Hostel Pass
+                <Building className="w-5 h-5" /> Hostel Pass
               </Link>
               <Link
                 href="/gate-pass/market"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors ml-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div> Market Pass
+                <Store className="w-5 h-5" /> Market Pass
               </Link>
             </div>
 
@@ -251,7 +267,7 @@ export default function Navbar() {
               <LayoutDashboard className="w-5 h-5" /> Dashboard
             </Link>
 
-            <div className="pt-4 border-t border-gray-100 mt-2">
+            <div className="pt-4 border-t border-gray-100 mt-2 pb-10">
               {user ? (
                 <button
                   onClick={handleLogout}
